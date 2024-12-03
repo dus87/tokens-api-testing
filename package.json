@@ -3,10 +3,14 @@
     "version": "1.0.0",
     "description": "Automated testing for Tokens API using Postman and Newman",
     "scripts": {
-      "test": "newman run collections/tokens_api_tests.postman_collection.json -e environments/prod.postman_environment.json -r cli,html --reporter-html-export reports/newman/report.html",
-      "install-newman": "npm install newman"
+        "test": "newman run collections/tokens_api_tests.postman_collection.json -e environments/prod.postman_environment.json -r cli,html --reporter-html-export reports/newman/report.html",
+        "install-newman": "npm install newman"
     },
     "dependencies": {
-      "newman": "^6.2.1"
+        "newman": "^6.2.1"
+    },
+    "devDependencies": {
+        "newman-reporter-html": "^1.0.5",
+        "newman-reporter-htmlextra": "^1.23.1"
     }
-  }
+}
