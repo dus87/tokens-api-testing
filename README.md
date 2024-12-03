@@ -61,7 +61,7 @@ The suite is designed to ensure the API maintains high quality and reliability s
 2. Import the Postman collection
 - Open Postman
 - Click "Import"
-- Select the collection file in `.json`
+- Select the collection file in collections/tokens_api_tests.postman_collection.json
 
 ## ▶️ Running Tests
 
@@ -73,6 +73,13 @@ The suite is designed to ensure the API maintains high quality and reliability s
 ### Using Newman (CLI)
 
 `newman run tokens_api_tests.postman_collection.json`
+
+### Using Github Actions
+Tests are automatically run on pull requests to the `main` branch to ensure API reliability before merging changes.
+
+### Running Tests Locally
+`npm install`
+`npm run test`
 
 ## 📊 Test Reports
 
