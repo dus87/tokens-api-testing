@@ -1,0 +1,8 @@
+# Ignore node_modules directory
+node_modules/
+
+# Ignore Newman reports if not needed
+reports/newman/*.html
+
+# Ignore local environment variables (optional)
+environments/local_environment.json

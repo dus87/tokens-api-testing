@@ -1,9 +1,9 @@
 # tokens-api-testing
 
 Test suite for /tokens endpoint
-# 🚀 API Testing Suite for `/tokens` endpoint 
+# 🚀 API Testing Suite for `/tokens` endpoint
 
-A comprehensive testing suite for [li.fi](https://apidocs.li.fi/reference/get_v1-tokens)  `/tokens` endpoint using Postman collections. 
+A comprehensive testing suite for [li.fi](https://apidocs.li.fi/reference/get_v1-tokens)  `/tokens` endpoint using Postman collections.
 This suite ensures reliability, performance, and security of the token-related services.
 
 ## 📚 Table of Contents
@@ -12,11 +12,10 @@ This suite ensures reliability, performance, and security of the token-related s
 - [Setup](#setup)
 - [Running Tests](#running-tests)
 - [Test Reports](#test-reports)
-- [Contributing](#contributing)
 
 ## 🎯 Overview
 
-This testing suite validates the Token API's functionality, covering various scenarios. 
+This testing suite validates the Token API's functionality, covering various scenarios.
 The suite is designed to ensure the API maintains high quality and reliability standards.
 
 ### 🌟 Key Features
@@ -83,13 +82,6 @@ Test reports are automatically generated after each run, providing:
 - Response times
 - Error details
 
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create your feature branch  `git checkout -b feature/AmazingFeature`
-3. Commit your changes  `git commit -m 'Add some AmazingFeature'`
-4. Push to the branch  `git push origin feature/AmazingFeature`
-5. Open a Pull Request
 
 ## 🛠️ Built With
 - Postman

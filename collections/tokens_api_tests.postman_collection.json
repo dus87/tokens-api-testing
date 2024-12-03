@@ -1,0 +1,1619 @@
+{
+	"info": {
+		"_postman_id": "2b71384e-1302-4b76-84aa-07c8ac58cae0",
+		"name": "tokens_api_tests",
+		"description": "Tokens API Tests/  \n├── Environment Setup/  \n│ ├── Pre-request Scripts  \n│ └── Environment Variables  \n├── Functional Tests/  \n│ ├── Basic Endpoint Tests  \n│ │ ├── GET /tokens (No Parameters)  \n│ │ └── GET /tokens (With Parameters)  \n│ ├── Parameter Tests/  \n│ │ ├── Chain ID Tests  \n│ │ └── Token Address Tests  \n│ └── Response Structure Tests  \n├── Non-Functional Tests/  \n│ ├── Performance Tests  \n│ └── Security Tests  \n└── Data Validation Tests/  \n├── Token Properties  \n└── Price Validation",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "40055437",
+		"_collection_link": "https://red-water-472472.postman.co/workspace/Team-Workspace~d6e8fd5f-f125-41c3-899d-f3ed1ec660f2/collection/40055437-2b71384e-1302-4b76-84aa-07c8ac58cae0?action=share&source=collection_link&creator=40055437"
+	},
+	"item": [
+		{
+			"name": "Basic Response Tests",
+			"item": [
+				{
+					"name": "Get All Tokens",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Asserts the endpoint returns a 200 OK status for a successful request",
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"// Asserts that the response is in JSON format, as expected for an API response",
+									"pm.test(\"Response contains an array of tokens\", function () {",
+									"    let responseJson = pm.response.json();",
+									"    pm.expect(responseJson).to.be.an('object'); ",
+									"});",
+									"",
+									"pm.test(\"Tokens have required properties\", function () {",
+									"    let responseJson = pm.response.json();",
+									"    let tokensArray = Object.values(responseJson.tokens).flat(); ",
+									"",
+									"    tokensArray.forEach((token) => {",
+									"        pm.expect(token).to.have.property('address');",
+									"        pm.expect(token).to.have.property('symbol');",
+									"        pm.expect(token).to.have.property('chainId');",
+									"    });",
+									"});",
+									"",
+									"pm.test(\"Response structure is valid\", function () {",
+									"    let responseJson = pm.response.json();",
+									"    ",
+									"    // Check if the response is an object",
+									"    pm.expect(responseJson).to.be.an('object');",
+									"",
+									"    let tokensArray = Object.values(responseJson.tokens).flat(); ",
+									"",
+									"    tokensArray.forEach((token) => {",
+									"        pm.expect(token).to.have.property('address').that.is.a('string');",
+									"        pm.expect(token).to.have.property('decimals').that.is.a('number');",
+									"        pm.expect(token).to.have.property('symbol').that.is.a('string');",
+									"        pm.expect(token).to.have.property('chainId').that.is.a('number');",
+									"        pm.expect(token).to.have.property('name').that.is.a('string');",
+									"",
+									"        // Optional fields",
+									"        if (token.hasOwnProperty('coinKey')) {",
+									"            pm.expect(token.coinKey).to.be.a('string');",
+									"        }",
+									"        if (token.hasOwnProperty('logoURI')) {",
+									"            pm.expect(token.logoURI).to.be.a('string');",
+									"        }",
+									"        if (token.hasOwnProperty('priceUSD')) {",
+									"            pm.expect(token.priceUSD).to.be.a('string');",
+									"        }",
+									"    });",
+									"});",
+									"",
+									"pm.test(\"Each chainId contains an array of tokens\", function () {",
+									"    let jsonData = pm.response.json();",
+									"    Object.values(jsonData.tokens).forEach(chainTokens => {",
+									"        pm.expect(chainTokens).to.be.an('array');",
+									"        pm.expect(chainTokens.length).to.be.greaterThan(0); // Assuming at least one token for each chain",
+									"    });",
+									"});",
+									"",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}{{tokens_endpoint}}",
+							"host": [
+								"{{baseUrl}}{{tokens_endpoint}}"
+							]
+						},
+						"description": "# Tokens Endpoint\n\nThis endpoint retrieves information about tokens.\n\n## Request\n\n- Method: GET\n    \n- URL: {{baseUrl}}{{tokens_endpoint}}\n    \n\n## Response\n\n- Status: 200\n    \n- Content Type: application/json\n    \n\n### Response Body\n\nThe response contains an object with a \"tokens\" key, which holds an array of token objects. Each token object contains the following properties:\n\n- `chainId` (number): The ID of the blockchain chain.\n    \n- `address` (string): The address of the token.\n    \n- `symbol` (string): The symbol of the token.\n    \n- `name` (string): The name of the token.\n    \n- `decimals` (number): The number of decimal places the token uses.\n    \n- `priceUSD` (string): The price of the token in USD.\n    \n- `coinKey` (string): The key associated with the token.\n    \n- `logoURI` (string): The URI for the token's logo.\n    \n\nExample Response:\n\n``` json\n{\n  \"tokens\": {\n    \"100\": [\n      {\n        \"chainId\": 0,\n        \"address\": \"\",\n        \"symbol\": \"\",\n        \"name\": \"\",\n        \"decimals\": 0,\n        \"priceUSD\": \"\",\n        \"coinKey\": \"\",\n        \"logoURI\": \"\"\n      }\n    ],\n    \"137\": [\n      {\n        \"chainId\": 0,\n        \"address\": \"\",\n        \"symbol\": \"\",\n        \"name\": \"\",\n        \"decimals\": 0,\n        \"priceUSD\": \"\",\n        \"coinKey\": \"\",\n        \"logoURI\": \"\"\n      }\n    ]\n  }\n}\n\n ```"
+					},
+					"response": []
+				}
+			],
+			"description": "Basic Response Validation Test Cases:  \n_This part of the test plan focuses specifically on the following:_\n\n- Response Status Code: Ensuring the correct status code is returned, typically 200 OK for successful requests.\n    \n- Response Format: Validating that the response is in the expected format, such as JSON.\n    \n- Response Structure: Verifying that the response contains the expected properties, like a tokens key that includes all the token information."
+		},
+		{
+			"name": "Parameter Testing - Functional",
+			"item": [
+				{
+					"name": "Chains Parameter Tests",
+					"item": [
+						{
+							"name": "Get Tokens by Chain - Valid Chain",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"",
+											"pm.test(\"Status code is 200\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"pm.test(\"Response is in JSON format\", function () {",
+											"    pm.response.to.be.json;",
+											"});",
+											"",
+											"pm.test(\"Response contains 'tokens' property\", function () {",
+											"    let jsonData = pm.response.json();",
+											"    pm.expect(jsonData).to.have.property('tokens').that.is.an('object');",
+											"});",
+											"",
+											"",
+											"pm.test(\"Response contains valid tokens for specified chain types\", function () {",
+											"    let jsonData = pm.response.json();",
+											"    let validChainTypes = ['EVM', 'SVM'];",
+											"    Object.values(jsonData.tokens).forEach(chainTokens => {",
+											"        chainTokens.forEach(token => {",
+											"            if (token.hasOwnProperty('chainType')) {",
+											"                pm.expect(validChainTypes).to.include(token.chainType);",
+											"            }",
+											"        });",
+											"    });",
+											"});",
+											"",
+											""
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								},
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}{{tokens_endpoint}}",
+									"host": [
+										"{{baseUrl}}{{tokens_endpoint}}"
+									],
+									"query": [
+										{
+											"key": "minPriceUSD",
+											"value": "10",
+											"disabled": true
+										}
+									]
+								},
+								"description": "#### **Filtering by** **`chains`**\n\n- Use both mnemonic and numeric values for the `chains` parameter.\n    \n- Verify that only tokens from the specified chains (e.g., `137` or `ETH`) are returned in the response."
+							},
+							"response": []
+						}
+					]
+				}
+			],
+			"description": "#### **2\\. Functional Parameter Tests**\n\n##### **Chains Parameter Tests**:\n\n- **Get Tokens by Chain - Valid Chain (e.g.,** **`chains=100)`**:\n    \n    - **Test**: Status Code is `200`.\n        \n    - **Test**: All tokens belong to the specified chain (`chainId=100`).\n        \n    - **Test**: No tokens from other chains are included.\n        \n- **Get Tokens by Chain - Invalid Chain (e.g.,** **`chains=INVALID)`**:\n    \n    - **Test**: Status Code is `400` or appropriate error code.\n        \n    - **Test**: Error message indicates an invalid chain.\n        \n\n##### **ChainTypes Parameter Tests**:\n\n- **Get Tokens by ChainTypes - Valid ChainType (e.g.,** **`chainTypes=EVM)`**:\n    \n    - **Test**: Status Code is `200`.\n        \n    - **Test**: All tokens belong to chain types defined as `EVM`.\n        \n- **Get Tokens by ChainTypes - Invalid ChainType (e.g.,** **`chainTypes=XYZ)`**:\n    \n    - **Test**: Status Code is `400` or appropriate error code.\n        \n    - **Test**: Error message indicates an unsupported chain type.\n        \n\n##### **Min Price USD Parameter Tests**:\n\n- **Get Tokens by Minimum Price - Valid Price (e.g.,** **`minPriceUSD=0.01)`**:\n    \n    - **Test**: Status Code is `200`.\n        \n    - **Test**: All tokens have `priceUSD` greater than or equal to `0.01`.\n        \n- **Get Tokens by Minimum Price - Invalid Price (e.g.,** **`minPriceUSD=-1)`**:\n    \n    - **Test**: Status Code is `400` or appropriate error code.\n        \n    - **Test**: Error message indicates an invalid value for `minPriceUSD`."
+		},
+		{
+			"name": "Chain Parameter Tests",
+			"item": [
+				{
+					"name": "Invalid Chain Name",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Set skipPreRequest to true to skip fallback in pre-request script",
+									"// pm.environment.set(\"skipPreRequest\", \"true\");",
+									"",
+									"",
+									"pm.test(\"Invalid chain parameter returns 400 Bad Request\", function () {",
+									"    pm.expect(pm.response).to.have.status(400);",
+									"    pm.expect(pm.response.json()).to.have.property('message').that.includes(\"/chains/0 must be\");",
+									"    pm.expect(pm.response.json()).to.have.property('code').that.equals(1011);",
+									"});",
+									"",
+									"// // Reset skipPreRequest to false after test",
+									"// pm.environment.set(\"skipPreRequest\", \"false\");",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// // Remove collection-level query parameters",
+									"// pm.request.url.query.remove(\"chains\");",
+									"// pm.request.url.query.remove(\"chainTypes\");",
+									"// Remove fallback values for chains and chainTypes specifically for negative tests",
+									"// if (pm.request.headers.get(\"skipPreRequest\") === \"true\") {",
+									"//     pm.collectionVariables.unset(\"chains\");",
+									"//     pm.collectionVariables.unset(\"chainTypes\");",
+									"// }",
+									"//Adds custom values for negative tests",
+									"// let invalidChain = pm.environment.get(\"invalidChain\") || \"FAKE_CHAIN\";",
+									"// pm.request.url.query.add({ key: \"chains\", value: invalidChain });"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}{{tokens_endpoint}}?chains={{invalidChain}}",
+							"host": [
+								"{{baseUrl}}{{tokens_endpoint}}"
+							],
+							"query": [
+								{
+									"key": "invalidChain",
+									"value": "INVALID_CHAIN",
+									"disabled": true
+								},
+								{
+									"key": "chains",
+									"value": "{{invalidChain}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Invalid Chain Parameter - Empty Chain",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"//pm.environment.set(\"skipPreRequest\", \"true\");",
+									"",
+									"pm.test(\"Invalid chain parameter - empty returns 400 Bad Request\", function () {",
+									"    pm.expect(pm.response).to.have.status(400);",
+									"    pm.expect(pm.response.json()).to.have.property('message').that.includes(\"/chains/0 must be\");",
+									"    pm.expect(pm.response.json()).to.have.property('code').that.equals(1011);",
+									"});",
+									"",
+									"// Reset skipPreRequest to false after test",
+									"//pm.environment.set(\"skipPreRequest\", \"false\");"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// // Remove collection-level query parameters",
+									"// pm.request.url.query.remove(\"chains\");",
+									"// pm.request.url.query.remove(\"chainTypes\");",
+									"",
+									"// // Optionally add custom values for negative tests",
+									"// let emptyChain = pm.environment.get(\"emptyChain\") || \"\";",
+									"// pm.request.url.query.add({ key: \"chains\", value: emptyChain });"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}{{tokens_endpoint}}?chains={{emptyChain}}",
+							"host": [
+								"{{baseUrl}}{{tokens_endpoint}}"
+							],
+							"query": [
+								{
+									"key": "chains",
+									"value": "{{emptyChain}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Invalid Chain Parameter - Special Characters",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"//pm.environment.set(\"skipPreRequest\", \"true\");",
+									"",
+									"pm.test(\"Invalid chain parameter - special caracter returns 400 Bad Request\", function () {",
+									"    pm.expect(pm.response).to.have.status(400);",
+									"    pm.expect(pm.response.json()).to.have.property('message').that.includes(\"/chains/0 must be number, /chains/0 must be equal to one of the allowed values, /chains/0 must match exactly one schema in oneOf\");",
+									"    pm.expect(pm.response.json()).to.have.property('code').that.equals(1011);",
+									"});",
+									"",
+									"// Reset skipPreRequest to false after test",
+									"//pm.environment.set(\"skipPreRequest\", \"false\");"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// // Remove collection-level query parameters",
+									"// pm.request.url.query.remove(\"chains\");",
+									"// pm.request.url.query.remove(\"chainTypes\");",
+									"",
+									"// // Optionally add custom values for negative tests",
+									"// let specialCharactersChain = pm.environment.get(\"specialCharactersChain\") || \"%2A%26%25%24%40%21\";",
+									"// pm.request.url.query.add({ key: \"chains\", value: specialCharactersChain });"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}{{tokens_endpoint}}?chains={{specialCharactersChain}}",
+							"host": [
+								"{{baseUrl}}{{tokens_endpoint}}"
+							],
+							"query": [
+								{
+									"key": "chains",
+									"value": "{{specialCharactersChain}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Invalid Chain Parameter - Boolean",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"//pm.environment.set(\"skipPreRequest\", \"true\");",
+									"",
+									"pm.test(\"Invalid chain parameter -boolean returns 400 Bad Request\", function () {",
+									"    pm.expect(pm.response).to.have.status(400);",
+									"    pm.expect(pm.response.json()).to.have.property('message').that.includes(\"/chains/0 must be\");",
+									"    pm.expect(pm.response.json()).to.have.property('code').that.equals(1011);",
+									"});",
+									"",
+									"// Reset skipPreRequest to false after test",
+									"//pm.environment.set(\"skipPreRequest\", \"false\");"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// // Remove collection-level query parameters",
+									"// pm.request.url.query.remove(\"chains\");",
+									"// pm.request.url.query.remove(\"chainTypes\");",
+									"",
+									"// // Optionally add custom values for negative tests",
+									"// let booleanChain = pm.environment.get(\"booleanChain\") || \"true\";",
+									"// pm.request.url.query.add({ key: \"chains\", value: booleanChain });",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}{{tokens_endpoint}}?chains={{booleanChain}}",
+							"host": [
+								"{{baseUrl}}{{tokens_endpoint}}"
+							],
+							"query": [
+								{
+									"key": "chains",
+									"value": "{{booleanChain}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Invalid Chain Parameter - Very Large Chain ID",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"//pm.environment.set(\"skipPreRequest\", \"true\");",
+									"",
+									"pm.test(\"Invalid chain parameter - large chain returns 400 Bad Request\", function () {",
+									"    pm.expect(pm.response).to.have.status(400);",
+									"    pm.expect(pm.response.json()).to.have.property('message').that.includes(\"/chains/0 must be\");",
+									"    pm.expect(pm.response.json()).to.have.property('code').that.equals(1011);",
+									"});",
+									"",
+									"// Reset skipPreRequest to false after test",
+									"//pm.environment.set(\"skipPreRequest\", \"false\");"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// // largeChain",
+									"// // Remove collection-level query parameters",
+									"// pm.request.url.query.remove(\"chains\");",
+									"// pm.request.url.query.remove(\"chainTypes\");",
+									"",
+									"// // Optionally add custom values for negative tests",
+									"// let largeChain = pm.environment.get(\"largeChain\") || \"999999999999\";",
+									"// pm.request.url.query.add({ key: \"chains\", value: largeChain });",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}{{tokens_endpoint}}?chains={{largeChain}}",
+							"host": [
+								"{{baseUrl}}{{tokens_endpoint}}"
+							],
+							"query": [
+								{
+									"key": "chains",
+									"value": "{{largeChain}}"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"description": "- GET Invalid Chain Parameter - Invalid Chain Name\n    \n- GET Invalid Chain Parameter - Empty Chain\n    \n- GET Invalid Chain Parameter - Special Characters\n    \n- GET Invalid Chain Parameter - Boolean\n    \n- GET Invalid Chain Parameter - Very Large Chain ID\n    \n\n| Test Scenario | Expected Outcome | Status Code | Purpose |\n| --- | --- | --- | --- |\n| Invalid Chain Name (e.g., \"FAKE_CHAIN\") | `400 Bad Request` with error message | 400 | Ensure only valid chain names/IDs are accepted |\n| Empty Chain Parameter | `400 Bad Request` with error message | 400 | Validate that an empty parameter is handled properly |\n| Special Characters (e.g., \"\\*&%$@!\") | `400 Bad Request` with error message | 400 | Ensure special characters are rejected |\n| Non-numeric Chain ID (e.g., \"randomText\") | `400 Bad Request` with error message | 400 | Confirm only numeric/mnemonic IDs are accepted |\n| Very Large Chain ID (e.g., \"999999999999\") | `400 Bad Request` with error message | 400 | Validate handling of chain IDs that are too large |\n| Boolean Value as Chain ID (e.g., \"true\") | `400 Bad Request` with error message | 400 | Ensure Boolean values are not accepted as chain IDs |",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"packages": {},
+						"exec": [
+							"// // Add a specific header to signal skip behavior",
+							"// pm.request.headers.add({",
+							"//   key: \"skipPreRequest\",",
+							"//   value: \"true\"",
+							"// });"
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"packages": {},
+						"exec": [
+							""
+						]
+					}
+				}
+			]
+		},
+		{
+			"name": "Min Price USD Parameter Tests",
+			"item": [
+				{
+					"name": "Get Tokens by Minimum Price - Valid Price",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Test for minPriceUSD filter ensuring no tokens below the value of 0.7",
+									"pm.test(\"All tokens should have a price greater than or equal to 0.7\", function () {",
+									"    let responseJson = pm.response.json();",
+									"    pm.expect(responseJson).to.have.property('tokens');",
+									"    let tokensArray = Object.values(responseJson.tokens); // Convert object to array if tokens are returned as an object",
+									"    pm.expect(tokensArray).to.be.an('array'); // Ensure tokens is an array",
+									"    let invalidTokens = tokensArray.filter(token => token.priceUSD < 0.7);",
+									"    pm.expect(invalidTokens.length, \"Number of tokens with price below 0.7 should be zero\").to.equal(0);",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}{{tokens_endpoint}}?minPriceUSD={{minPriceUSD}}",
+							"host": [
+								"{{baseUrl}}{{tokens_endpoint}}"
+							],
+							"query": [
+								{
+									"key": "minPriceUSD",
+									"value": "{{minPriceUSD}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Tokens by large price filter - Valid Price",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// pm.test(\"Response is successful with no tokens found\", function () {",
+									"//     pm.response.to.have.status(200);",
+									"//     let jsonData = pm.response.json();",
+									"//     pm.expect(jsonData).to.have.property('tokens').that.is.an('object');",
+									"//     pm.expect(Object.keys(jsonData.tokens).length).to.eql(0); // Asserts that the tokens object is empty",
+									"// });",
+									"",
+									"pm.test(\"Response is successful with no tokens found\", function () {",
+									"    let responseJson = pm.response.json();",
+									"    pm.expect(responseJson).to.have.property('tokens');",
+									"    let tokensArray = Object.keys(responseJson.tokens).length === 0 ? [] : Object.values(responseJson.tokens); // Handle empty object case properly",
+									"    pm.expect(tokensArray).to.be.an('array').with.lengthOf(0); // Check that there are no tokens",
+									"});",
+									"",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}{{tokens_endpoint}}?minPriceUSD={{largePrice}}",
+							"host": [
+								"{{baseUrl}}{{tokens_endpoint}}"
+							],
+							"query": [
+								{
+									"key": "minPriceUSD",
+									"value": "{{largePrice}}"
+								}
+							]
+						},
+						"description": "Valid Request: The request is well-formed and valid.\nFilter Logic: The filter (minPriceUSD) you applied is likely outside the range of any available tokens, hence the empty response.\nNo Error: Since the input parameter is within an acceptable range for the endpoint (i.e., it's a valid number), there is no reason for the server to return an error (e.g., 400 Bad Request). The server correctly understands the input, but no results match the criteria."
+					},
+					"response": []
+				},
+				{
+					"name": "chainTypes Parameter - Invalid Value",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Invalid chainType parameter returns 400 Bad Request\", function () {",
+									"    pm.expect(pm.response).to.have.status(400);",
+									"    pm.expect(pm.response.json()).to.have.property('message').that.includes(\"/chainTypes/0 must be equal to one of the allowed values\");",
+									"    pm.expect(pm.response.json()).to.have.property('code').that.equals(1011);",
+									"});",
+									"",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}{{tokens_endpoint}}?chainTypes={{invalidChainType}}",
+							"host": [
+								"{{baseUrl}}{{tokens_endpoint}}"
+							],
+							"query": [
+								{
+									"key": "chainTypes",
+									"value": "{{invalidChainType}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "chainTypes - Empty Chain Type",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Invalid chainType parameter returns 400 Bad Request\", function () {",
+									"    pm.expect(pm.response).to.have.status(400);",
+									"    pm.expect(pm.response.json()).to.have.property('message').that.includes(\"/chainTypes/0 must be\");",
+									"    pm.expect(pm.response.json()).to.have.property('code').that.equals(1011);",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}{{tokens_endpoint}}?chainTypes={{emptyChainType}}",
+							"host": [
+								"{{baseUrl}}{{tokens_endpoint}}"
+							],
+							"query": [
+								{
+									"key": "chainTypes",
+									"value": "{{emptyChainType}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "chainTypes - Special Characters in Chain Type",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Special characters in chainType parameter return 400 Bad Request\", function () {",
+									"    pm.expect(pm.response).to.have.status(400);",
+									"    pm.expect(pm.response.json()).to.have.property('message').that.includes(\"/chainTypes/0 must be\");",
+									"    pm.expect(pm.response.json()).to.have.property('code').that.equals(1011);",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}{{tokens_endpoint}}?chainTypes={{specialCharactersChainType}}",
+							"host": [
+								"{{baseUrl}}{{tokens_endpoint}}"
+							],
+							"query": [
+								{
+									"key": "chainTypes",
+									"value": "{{specialCharactersChainType}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "chainTypes - Boolean in Chain Type",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Boolean value in chainType parameter returns 400 Bad Request\", function () {",
+									"    pm.expect(pm.response).to.have.status(400);",
+									"    pm.expect(pm.response.json()).to.have.property('message').that.includes(\"/chainTypes/0 must be\");",
+									"    pm.expect(pm.response.json()).to.have.property('code').that.equals(1011);",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}{{tokens_endpoint}}?chainTypes={{booleanChainType}}",
+							"host": [
+								"{{baseUrl}}{{tokens_endpoint}}"
+							],
+							"query": [
+								{
+									"key": "chainTypes",
+									"value": "{{booleanChainType}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Negative Value for minPriceUSD",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Negative value for minPriceUSD returns 400 Bad Request\", function () {",
+									"    pm.expect(pm.response).to.have.status(400);",
+									"    pm.expect(pm.response.json()).to.have.property('message').that.includes(\"/minPriceUSD must be >= 0\");",
+									"    pm.expect(pm.response.json()).to.have.property('code').that.equals(1011);",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}{{tokens_endpoint}}?minPriceUSD={{negativePrice}}",
+							"host": [
+								"{{baseUrl}}{{tokens_endpoint}}"
+							],
+							"query": [
+								{
+									"key": "minPriceUSD",
+									"value": "{{negativePrice}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "String Value for minPriceUSD",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"String value for minPriceUSD returns 400 Bad Request\", function () {",
+									"    pm.expect(pm.response).to.have.status(400);",
+									"    pm.expect(pm.response.json()).to.have.property('message').that.includes(\"/minPriceUSD must be number\");",
+									"    pm.expect(pm.response.json()).to.have.property('code').that.equals(1011);",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}{{tokens_endpoint}}?minPriceUSD={{stringPrice}}",
+							"host": [
+								"{{baseUrl}}{{tokens_endpoint}}"
+							],
+							"query": [
+								{
+									"key": "minPriceUSD",
+									"value": "{{stringPrice}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Special Characters for minPriceUSD",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Special characters for minPriceUSD return 400 Bad Request\", function () {",
+									"    pm.expect(pm.response).to.have.status(400);",
+									"    pm.expect(pm.response.json()).to.have.property('message').that.includes(\"/minPriceUSD must be number\");",
+									"    pm.expect(pm.response.json()).to.have.property('code').that.equals(1011);",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}{{tokens_endpoint}}?minPriceUSD={{specialCharactersPrice}}",
+							"host": [
+								"{{baseUrl}}{{tokens_endpoint}}"
+							],
+							"query": [
+								{
+									"key": "minPriceUSD",
+									"value": "{{specialCharactersPrice}}"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"description": "| **Parameter** | **Invalid Value** | **Description** | **Expected Outcome** |\n| --- | --- | --- | --- |\n| `chainTypes` | `XYZ` | Non-existent chain type | `400 Bad Request` |\n| `chainTypes` | `\"\"` (empty) | Missing chain type | `400 Bad Request` |\n| `chainTypes` | `#$%^&\\\\\\*` | Special characters | `400 Bad Request` |\n| `chainTypes` | `true` | Boolean value | `400 Bad Request` |\n| `minPriceUSD` | `-10` | Negative value | `400 Bad Request` |\n| `minPriceUSD` | `\"abc\"` | String value instead of number | `400 Bad Request` |\n| `minPriceUSD` | `\\\\\\*@#` | Special characters | `400 Bad Request` |\n| `minPriceUSD` | `99999999999999999` | Very large value | Depends on API implementation |"
+		},
+		{
+			"name": "Security Tests",
+			"item": [
+				{
+					"name": "SQL Injection Test",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"//pm.environment.set(\"skipPreRequest\", \"true\");",
+									"",
+									"pm.test(\"SQL injection attempt returns 400 Bad Request or appropriate error\", function () {",
+									"    pm.expect(pm.response).to.have.status(400);",
+									"    pm.expect(pm.response.json()).to.have.property('message').that.includes(\"/chains/0 must be\");",
+									"    pm.expect(pm.response.json()).to.have.property('code').that.equals(1011);",
+									"});",
+									"",
+									"//pm.environment.set(\"skipPreRequest\", \"false\");"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// Optionally add custom values for negative tests",
+									"let sqlInjectionChain = pm.environment.get(\"sqlInjectionChain\") || \"1 OR 1=1\";",
+									"pm.request.url.query.add({ key: \"chains\", value: sqlInjectionChain });"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}{{tokens_endpoint}}?chains={{sqlInjectionChain}}",
+							"host": [
+								"{{baseUrl}}{{tokens_endpoint}}"
+							],
+							"query": [
+								{
+									"key": "chains",
+									"value": "{{sqlInjectionChain}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Cross-Site Scripting (XSS) Test",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"XSS chain parameter returns 400 Bad Request\", function () {",
+									"    pm.expect(pm.response).to.have.status(400);",
+									"    pm.expect(pm.response.json()).to.have.property('message').that.includes(\"/chains/0 must be\");",
+									"    pm.expect(pm.response.json()).to.have.property('code').that.equals(1011);",
+									"});",
+									"",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}{{tokens_endpoint}}?chains={{xssChain}}",
+							"host": [
+								"{{baseUrl}}{{tokens_endpoint}}"
+							],
+							"query": [
+								{
+									"key": "chains",
+									"value": "{{xssChain}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Rate limiting",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.environment.get(\"runRateLimitTest\") === \"true\") {",
+									"    pm.test(\"Rate limiting returns 429 Too Many Requests\", function () {",
+									"        pm.expect(pm.response).to.have.status(429);",
+									"        pm.expect(pm.response.json()).to.have.property('message').that.includes(\"Too many requests\");",
+									"    });",
+									"} else {",
+									"    console.warn(\"Skipping rate limit test as 'runRateLimitTest' flag is set to false\");",
+									"}",
+									"",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}{{tokens_endpoint}}",
+							"host": [
+								"{{baseUrl}}{{tokens_endpoint}}"
+							]
+						},
+						"description": "When triggering the test in your CI/CD pipeline (using Newman or any other tool), pass in the runRateLimitTest as an environment variable with the value \"true\" to include the rate limit test\n\n`newman run .json -e .json --env-var runRateLimitTest=true`\n\nBy default, the rate limit test will always be skipped.\n\nThe test only runs if the environment variable runRateLimitTest is explicitly set to \"true\", making it ideal for running selectively during certain CI/CD executions."
+					},
+					"response": []
+				}
+			],
+			"description": "1. **SQL Injection Test**\n    \n2. **Cross-Site Scripting (XSS) Test**\n    \n3. **Rate Limiting Test**\n    \n4. **Fuzz Testing**\n    \n\nThese security tests will help ensure that your `/tokens` endpoint is resilient to common security threats such as SQL injection, XSS, rate limit abuse, and improper input handling (fuzz testing)",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"packages": {},
+						"exec": [
+							"",
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"packages": {},
+						"exec": [
+							""
+						]
+					}
+				}
+			]
+		},
+		{
+			"name": "Performance Tests",
+			"item": [
+				{
+					"name": "Run Spike Test",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.environment.get(\"runSpikeTest\") === \"true\") {",
+									"    let maxBurst = 10; // Send 10 requests as a spike",
+									"    for (let i = 0; i < maxBurst; i++) {",
+									"        pm.sendRequest({",
+									"            url: pm.environment.get(\"baseUrl\") + pm.environment.get(\"tokens_endpoint\"),",
+									"            method: 'GET'",
+									"        }, function (err, res) {",
+									"            if (err) {",
+									"                console.error(\"Error in burst request: \", err);",
+									"            } else {",
+									"                console.log(`Request ${i + 1} status: ${res.status}`);",
+									"            }",
+									"        });",
+									"    }",
+									"} else {",
+									"    console.warn(\"Spike test skipped as 'runSpikeTest' flag is set to false\");",
+									"}"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}{{tokens_endpoint}}",
+							"host": [
+								"{{baseUrl}}{{tokens_endpoint}}"
+							]
+						},
+						"description": "- Measure response times and ensures they are within acceptable limits (e.g., less than 500ms for single queries).\n    \n- Test with large datasets or multiple filters applied (e.g., chains=137,100 and minPriceUSD=500)."
+					},
+					"response": []
+				},
+				{
+					"name": "Response time under 500ms",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Objective: Validate that the response time is within acceptable limits (e.g., less than 500ms).",
+									"",
+									"pm.test(\"Response time is less than 500ms\", function () {",
+									"    pm.expect(pm.response.responseTime).to.be.below(500);",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}{{tokens_endpoint}}",
+							"host": [
+								"{{baseUrl}}{{tokens_endpoint}}"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"description": "GET Response Time Check\n\n"
+		},
+		{
+			"name": "Data-Specific and Combination Tests",
+			"item": [
+				{
+					"name": "Get Tokens with Multiple Filters",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Valid tokens meet chain and price filters\", function () {",
+									"    pm.expect(pm.response).to.have.status(200);",
+									"    let jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('tokens').that.is.an('object');",
+									"    ",
+									"    // Validate tokens match the specified chain and price filters",
+									"    Object.keys(jsonData.tokens).forEach(chainId => {",
+									"        pm.expect(chainId).to.equal(pm.collectionVariables.get(\"validChain\"));",
+									"        jsonData.tokens[chainId].forEach(token => {",
+									"            pm.expect(parseFloat(token.priceUSD)).to.be.at.least(parseFloat(pm.collectionVariables.get(\"validMinPrice\")));",
+									"        });",
+									"    });",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}{{tokens_endpoint}}?chains={{validChain}}&minPriceUSD={{validMinPrice}}",
+							"host": [
+								"{{baseUrl}}{{tokens_endpoint}}"
+							],
+							"query": [
+								{
+									"key": "chains",
+									"value": "{{validChain}}"
+								},
+								{
+									"key": "minPriceUSD",
+									"value": "{{validMinPrice}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "tokens chainId should match chains number",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"All tokens should have chainId equal to 1\", function () {",
+									"    let responseJson = pm.response.json();",
+									"    pm.expect(responseJson).to.have.property('tokens');",
+									"    ",
+									"    // Get the array of tokens from tokens[\"1\"]",
+									"    let tokensArray = responseJson.tokens[\"1\"];",
+									"    ",
+									"    pm.expect(tokensArray).to.be.an('array'); // Ensure tokens is an array",
+									"    let invalidChainIdTokens = tokensArray.filter(token => token.chainId !== 1);",
+									"    pm.expect(invalidChainIdTokens.length, \"All tokens should have chainId equal to 1\").to.equal(0);",
+									"});",
+									"// when i pass in the number 10 and 100 it still returns all tokens for ETH chain",
+									"",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}{{tokens_endpoint}}?chains={{ETH}}",
+							"host": [
+								"{{baseUrl}}{{tokens_endpoint}}"
+							],
+							"query": [
+								{
+									"key": "chains",
+									"value": "{{ETH}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Validate number of chainTypes",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Count different chain types in the document\", function () {",
+									"    let responseJson = pm.response.json();",
+									"    ",
+									"    // Ensure the response has a tokens property",
+									"    pm.expect(responseJson).to.have.property('tokens');",
+									"    ",
+									"    // Get the keys of the tokens object, which represent different chain types",
+									"    let chainTypes = Object.keys(responseJson.tokens);",
+									"    ",
+									"    // Log the chain types for reference",
+									"    console.log(\"Chain types:\", chainTypes);",
+									"    ",
+									"    // Check the number of chain types",
+									"    pm.expect(chainTypes.length).to.be.above(0, \"There should be at least one chain type\");",
+									"    ",
+									"    // Log the number of chain types",
+									"    console.log(\"Number of chain types:\", chainTypes.length);",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}{{tokens_endpoint}}",
+							"host": [
+								"{{baseUrl}}{{tokens_endpoint}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Query parameter typo",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Misspelled query parameter 'minPrcieUSD' should return 400 Bad Request\", function () {",
+									"    pm.response.to.have.status(400);",
+									"    let responseJson = pm.response.json();",
+									"    pm.expect(responseJson).to.have.property('message').that.includes('Invalid request');",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}{{tokens_endpoint}}?minPrcieUSD={{minPriceUSD}}",
+							"host": [
+								"{{baseUrl}}{{tokens_endpoint}}"
+							],
+							"query": [
+								{
+									"key": "minPrcieUSD",
+									"value": "{{minPriceUSD}}"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"description": "Request: Get Tokens with Multiple Filters (chains=100,137&minPriceUSD=100)\nRequest: Get Tokens for Specific Chain and ChainTypes (chains=100&chainTypes=EVM)\nRequest: Handle Renamed Tokens (Validate if the tokens like \"MATIC\" to \"POL\" are correctly returned on the appropriate chains)."
+		},
+		{
+			"name": "Response Status Code Validation",
+			"item": [
+				{
+					"name": "Test for 401 Unauthorized",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// 2. Test for 401 Unauthorized",
+									"// This test is failing here but is passing when applying at the docs page:",
+									"// https://apidocs.li.fi/reference/get_v1-tokens#:~:text=HEADERS-,x%2Dlifi%2Dapi%2Dkey,-string",
+									"const unauthorizedApiKey = pm.environment.get('unauthorized_api_key') || 'whdkjwqhdkjwhqdwdwhd';",
+									"pm.test(\"Status code is 401 for Unauthorized access\", function () {",
+									"    pm.request.headers.add({ key: 'x-lifi-api-key', value: unauthorizedApiKey });",
+									"    pm.response.to.have.status(401);",
+									"    let responseJson = pm.response.json();",
+									"    pm.expect(responseJson).to.have.property('message').that.includes('Unauthorized');",
+									"    pm.expect(responseJson).to.have.property('code').that.equals(1010);",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}{{tokens_endpoint}}",
+							"host": [
+								"{{baseUrl}}{{tokens_endpoint}}"
+							]
+						},
+						"description": "401 Unauthorized\n\nURL: /tokens endpoint.\nExample: {{base_url}}/tokens\nDescription: Remove or use an invalid API key in the request header to trigger a 401 Unauthorized.\nConfiguration: Ensure the x-lifi-api-key is not set or incorrect."
+					},
+					"response": []
+				},
+				{
+					"name": "Status code is 403 for Forbidden access",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 403 for Forbidden access\", function () {",
+									"    pm.request.headers.add({ key: 'x-lifi-api-key', value: 'invalid-api-key-forbidden' }); // TO-DO: finding a expired x-lifi-api-key",
+									"    pm.response.to.have.status(403);",
+									"    let responseJson = pm.response.json();",
+									"    pm.expect(responseJson).to.have.property('message').that.includes('Forbidden');",
+									"});",
+									"",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}{{tokens_endpoint}}",
+							"host": [
+								"{{baseUrl}}{{tokens_endpoint}}"
+							]
+						},
+						"description": "401 Unauthorized\n\nURL: /tokens endpoint.\nExample: {{base_url}}/tokens\nDescription: Remove or use an invalid API key in the request header to trigger a 401 Unauthorized.\nConfiguration: Ensure the x-lifi-api-key is not set or incorrect."
+					},
+					"response": []
+				},
+				{
+					"name": "Status code is 404 for resource not found",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 404 for resource not found\", function () {",
+									"    pm.response.to.have.status(404);",
+									"    let responseJson = pm.response.json();",
+									"    pm.expect(responseJson).to.have.property('message').that.is.a('string').that.includes('Not Found');",
+									"    pm.expect(responseJson).to.have.property('code').that.equals(1003);",
+									"    pm.expect(pm.request.url.toString()).to.include('/invalid-resource'); // Ensures the request URL is properly set for 404 test",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}{{tokens_endpoint}}/invalid-resource",
+							"host": [
+								"{{baseUrl}}{{tokens_endpoint}}"
+							],
+							"path": [
+								"invalid-resource"
+							]
+						},
+						"description": "401 Unauthorized\n\nURL: /tokens endpoint.\nExample: {{base_url}}/tokens\nDescription: Remove or use an invalid API key in the request header to trigger a 401 Unauthorized.\nConfiguration: Ensure the x-lifi-api-key is not set or incorrect."
+					},
+					"response": []
+				}
+			],
+			"description": "### **Response Status Code Validation for Error Scenarios**\n\n- **400 Bad Request**: Test cases for invalid input parameters to ensure the API returns a 400 status code when client errors occur.\n    \n- **401 Unauthorized**: Test if the API returns a 401 status code when an unauthorized request is made (e.g., missing or invalid authentication token).\n    \n- **403 Forbidden**: Test if access to a resource is denied and results in a 403 status code.\n    \n- **404 Not Found**: Test if the requested resource doesn't exist or the endpoint is incorrect, resulting in a 404 status code.\n    \n- **429 Too Many Requests**: Simulate multiple rapid requests to see if rate limiting is in place, returning a 429 status code.\n    \n- **500 Internal Server Error**: Ensure the server handles unexpected failures gracefully and responds with a 500 status code."
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					"",
+					"// 1. Optionally add a timestamp (if required by the API for security purposes)",
+					"const currentTimestamp = new Date().toISOString();",
+					"pm.environment.set('timestamp', currentTimestamp);",
+					"",
+					"// Log the timestamp for debugging purposes",
+					"console.log(`Current Timestamp Set: ${currentTimestamp}`);",
+					"",
+					"// For debugging: Log the final URL",
+					"console.log(pm.request.url.toString());",
+					"",
+					"// 2. Skip pre-request script for rate limiting scenarios if needed",
+					"let skipRateLimitTest = pm.environment.get(\"skipRateLimitTest\");",
+					"if (skipRateLimitTest === \"true\") {",
+					"    console.warn(\"Rate limiting test skipped to avoid blocking further requests.\");",
+					"} else {",
+					"    // Proceed with the request as usual",
+					"}",
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "https://li.quest/v1",
+			"type": "string"
+		},
+		{
+			"key": "x-lifi-api-key",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "minPriceUSD",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "tokens_endpoint",
+			"value": "/tokens",
+			"type": "string"
+		},
+		{
+			"key": "sqlInjectionChain",
+			"value": "1%20OR%201%3D1",
+			"type": "default"
+		},
+		{
+			"key": "invalidChain",
+			"value": "FAKE_CHAIN",
+			"type": "string"
+		},
+		{
+			"key": "emptyChain",
+			"value": "\"\"",
+			"type": "string"
+		},
+		{
+			"key": "specialCharactersChain",
+			"value": "%2A%26%25%24%40%21",
+			"type": "string"
+		},
+		{
+			"key": "booleanChain",
+			"value": "true",
+			"type": "string"
+		},
+		{
+			"key": "largeChain",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "chains",
+			"value": ""
+		},
+		{
+			"key": "chainTypes",
+			"value": ""
+		},
+		{
+			"key": "xssChain",
+			"value": "",
+			"type": "default"
+		},
+		{
+			"key": "fuzzValue",
+			"value": ""
+		},
+		{
+			"key": "encodedValue",
+			"value": "",
+			"type": "default"
+		},
+		{
+			"key": "maliciousChain",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "invalidChainType",
+			"value": "",
+			"type": "default"
+		},
+		{
+			"key": "emptyChainType",
+			"value": "\"\"",
+			"type": "default"
+		},
+		{
+			"key": "specialCharactersChainType",
+			"value": "%2A%26%25%24%40%21",
+			"type": "default"
+		},
+		{
+			"key": "booleanChainType",
+			"value": "true",
+			"type": "default"
+		},
+		{
+			"key": "negativePrice",
+			"value": "-10",
+			"type": "default"
+		},
+		{
+			"key": "specialCharactersPrice",
+			"value": "%2A%40%23",
+			"type": "default"
+		},
+		{
+			"key": "largePrice",
+			"value": "999999999999999999999999999999999999",
+			"type": "default"
+		},
+		{
+			"key": "validChain",
+			"value": "100",
+			"type": "default"
+		},
+		{
+			"key": "validMinPrice",
+			"value": "10",
+			"type": "default"
+		},
+		{
+			"key": "stringPrice",
+			"value": "",
+			"type": "default"
+		},
+		{
+			"key": "ETH",
+			"value": "1"
+		}
+	]
+}
